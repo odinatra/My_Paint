@@ -2,6 +2,12 @@
 #include <windows.h> 
 #include <math.h> //For ellipse and spiral
 
+
+int lastx, lasty, x, y;		//Variables used in drawing.
+int n = 1;					//Switch used for determining what would be drawn
+int r = 0, g = 0, b = 0;	//Color values
+int t = 1;					//Thickness of pen
+
 void line(HDC _hdc, int x1, int y1, int x2, int y2)//This function draws line by the given four coordinates.
 {
 

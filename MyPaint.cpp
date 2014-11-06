@@ -5,17 +5,10 @@
 // Using code by Niloy Mondal
 //This code is copyrighted and has// limited warranties.Please see http://www.Planet-Source-Code.com/vb/scripts/ShowCode.asp?txtCodeId=4600&lngWId=3//for details.//**************************************
 
-#define _USE_MATH_DEFINES //For using pi
 #include <windows.h> 
-#include <math.h> //For ellipse and spiral
-#include "draw.h" //For ellipse and spiral
+#include "draw.h" 
 
-int lastx, lasty, x, y;		//Variables used in drawing.
-int n;//Switch used for determining what would be drawn
-int r = 0, g = 0, b = 0; //Color values
-int t = 1; //Thickness of pen
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-
 //Elements of window
 HWND hButLine, hButRect, hButEllipse, hEditRed, hButLine4, hEditGreen, hEditBlue, hEditThick, hButSpiral, hButPencil; 
 HPEN p; //Pen used for drawing
@@ -46,7 +39,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,PSTR szCmdLine, 
 			MB_ICONERROR);
 		return 0;
 	}
-
 
 	hwnd = CreateWindow(szAppName, // window class name
 		TEXT("MyPaint C++"), // window caption
@@ -255,8 +247,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{n = 1;
 		} return 0;
 		case 102:
-		{
-		n = 2;
+		{n = 2;
 		} return 0;
 		case 103:
 		{n = 3;

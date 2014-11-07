@@ -1,9 +1,6 @@
-//**************************************
 // Name: ^A Paint Program in Visual C++^
 // Description:This shows how to make a simple free-hand drawing program in Visual C++. The code is commented.
 // By: Dzyuba Mykhailo
-// Using code by Niloy Mondal
-//This code is copyrighted and has// limited warranties.Please see http://www.Planet-Source-Code.com/vb/scripts/ShowCode.asp?txtCodeId=4600&lngWId=3//for details.//**************************************
 
 #include <windows.h> 
 #include "draw.h" 
@@ -39,7 +36,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,PSTR szCmdLine, 
 			MB_ICONERROR);
 		return 0;
 	}
-
+	p = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
 	hwnd = CreateWindow(szAppName, // window class name
 		TEXT("MyPaint C++"), // window caption
 		WS_OVERLAPPEDWINDOW,// window style
@@ -62,8 +59,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,PSTR szCmdLine, 
 	return msg.wParam;
 }
 
-//Functions for drawing primitives contain 5 variables - HDC, coordinates when left mouse button is pressed,
-//and coordinates when mouse button is released. It is explained in detail in WndProc comments
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -73,9 +68,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	RECT rect;
 	hdc = GetDC(hwnd);							//hdc is handle to device context
 	//Initializing pen for drawing. It is reinitialized every cycle
-	p = CreatePen(PS_SOLID, t, RGB(r, g, b));	
 	SelectObject(hdc, p);
-	
 	switch (message)
 	{
 	case WM_CREATE:
@@ -262,6 +255,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//Changing pen values to inputed in edit controls. If e
 		case 106:
 		{
+			int r, g, b;	//Color values (by default - black)
+			int t;			//Thickness of pen (by default 1 px)
 			wchar_t buffer_red[4], buffer_green[4], buffer_blue[4], buffer_thick[4]; //Buffers for input
 			SendMessage(hEditRed,
 				WM_GETTEXT,
@@ -279,35 +274,34 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				WM_GETTEXT,
 				4,
 				reinterpret_cast<LPARAM>(buffer_thick));
-			
+			r = _wtoi(buffer_red);
+			g = _wtoi(buffer_green);
+			b = _wtoi(buffer_blue);
+			t = _wtoi(buffer_thick);
 			//Checking if inputted value is in allowed limits
-			if (_wtoi(buffer_red) > 255)
+			if (r > 255)
 			{
 				r = 255;
-				SendMessage(hEditRed, WM_SETTEXT, NULL, (LPARAM) TEXT("255")); //Changing value to allowed
+				SendMessage(hEditRed, WM_SETTEXT, NULL, (LPARAM)TEXT("255")); //Changing value to allowed
 			}
-			else r = _wtoi(buffer_red); 
-			if (_wtoi(buffer_green)>255) 
+			if (g > 255) 
 			{
 				g = 255;
 				SendMessage(hEditGreen, WM_SETTEXT, NULL, (LPARAM)TEXT("255"));
 			}
-			else g = _wtoi(buffer_green);
-			if (_wtoi(buffer_blue)>255)
+			if (b > 255)
 			{
 				b = 255;
 				SendMessage(hEditBlue, WM_SETTEXT, NULL, (LPARAM)TEXT("255"));
 			}
-			else b = _wtoi(buffer_blue);
-			if (_wtoi(buffer_thick)>255) 
+			if (t > 255) 
 			{
 				t = 255;
 				SendMessage(hEditThick, WM_SETTEXT, NULL, (LPARAM)TEXT("255"));
 			}
-			else t = _wtoi(buffer_thick);
+			p = CreatePen(PS_SOLID, t, RGB(r, g, b));
 		}
 		return 0;
-
 		}
 		return 0;
 	case WM_LBUTTONDOWN:					//If Left mouse button is pressed

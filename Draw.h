@@ -4,9 +4,10 @@
 
 
 int lastx, lasty, x, y;		//Variables used in drawing.
-int n = 1;					//Switch used for determining what would be drawn
-int r = 0, g = 0, b = 0;	//Color values
-int t = 1;					//Thickness of pen
+int n = 1;					//Switch used for determining what would be drawn (by default - line)
+
+//Functions for drawing primitives contain 5 variables - HDC, coordinates when left mouse button is pressed,
+//and coordinates when mouse button is released. It is explained in detail in WndProc comments
 
 void line(HDC _hdc, int x1, int y1, int x2, int y2)//This function draws line by the given four coordinates.
 {

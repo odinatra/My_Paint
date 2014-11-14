@@ -9,8 +9,22 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 //Elements of window
 HWND hButLine, hButRect, hButEllipse, hEditRed, hButLine4, hEditGreen, hEditBlue, hEditThick, hButSpiral, hButPencil; 
 HPEN p; //Pen used for drawing
-
+Image g;
 //  Default WinMain for Windows applications
+
+int check_return(wchar_t buffer[4], HWND ExtShow)
+{
+	int variable = _wtoi(buffer);
+	//Checking if inputted value is in allowed limits
+	if (variable > 255)
+	{
+		variable = 255;
+		SendMessage(ExtShow, WM_SETTEXT, NULL, (LPARAM)TEXT("255")); //Changing value to allowed
+	}
+	return variable;
+}
+
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,PSTR szCmdLine, int iCmdShow)
 {
 	static TCHAR szAppName[] = TEXT("Paint");//Winddow Class name
@@ -237,20 +251,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		//Switch primitive depending on button pressed
 		case 101:
-		{n = 1;
+		{g.n = 1;
 		} return 0;
 		case 102:
-		{n = 2;
+		{g.n = 2;
 		} return 0;
 		case 103:
-		{n = 3;
+		{g.n = 3;
 		}
 		return 0;
 		case 104:
-		{n = 4;
+		{g.n = 4;
 		} return 0;
 		case 105:
-		{n = 5;
+		{g.n = 5;
 		} return 0;
 		//Changing pen values to inputed in edit controls. If e
 		case 106:
@@ -274,58 +288,35 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				WM_GETTEXT,
 				4,
 				reinterpret_cast<LPARAM>(buffer_thick));
-			r = _wtoi(buffer_red);
-			g = _wtoi(buffer_green);
-			b = _wtoi(buffer_blue);
-			t = _wtoi(buffer_thick);
-			//Checking if inputted value is in allowed limits
-			if (r > 255)
-			{
-				r = 255;
-				SendMessage(hEditRed, WM_SETTEXT, NULL, (LPARAM)TEXT("255")); //Changing value to allowed
-			}
-			if (g > 255) 
-			{
-				g = 255;
-				SendMessage(hEditGreen, WM_SETTEXT, NULL, (LPARAM)TEXT("255"));
-			}
-			if (b > 255)
-			{
-				b = 255;
-				SendMessage(hEditBlue, WM_SETTEXT, NULL, (LPARAM)TEXT("255"));
-			}
-			if (t > 255) 
-			{
-				t = 255;
-				SendMessage(hEditThick, WM_SETTEXT, NULL, (LPARAM)TEXT("255"));
-			}
-			p = CreatePen(PS_SOLID, t, RGB(r, g, b));
+			//Checking, that inputted value is less than 255, and converting to int. With this data we give new information to pen
+			p = CreatePen(PS_SOLID, check_return(buffer_thick, hEditThick), RGB(check_return(buffer_red, hEditRed),
+				check_return(buffer_green, hEditGreen), check_return(buffer_blue, hEditBlue)));
 		}
 		return 0;
 		}
 		return 0;
 	case WM_LBUTTONDOWN:					//If Left mouse button is pressed
-		lastx = LOWORD(lParam);			//Store the x-coordiante in lastx
-		lasty = HIWORD(lParam);			//Store the y-coordinate in lasty
+		g.lastx = LOWORD(lParam);			//Store the x-coordiante in lastx
+		g.lasty = HIWORD(lParam);			//Store the y-coordinate in lasty
 		return 0;
 	case WM_LBUTTONUP:					//If Left mouse button is released
-		x = LOWORD(lParam);					//Store the current x 
-		y = HIWORD(lParam);					//Store the current y
+		g.x = LOWORD(lParam);					//Store the current x 
+		g.y = HIWORD(lParam);					//Store the current y
 		//Depending on n following action will take place
-		if (n == 1)  line(hdc, lastx, lasty, x, y);		//Drawing the line from the last pair of coordiates to current
-		if (n == 2)  rectangle(hdc, lastx, lasty, x, y); //Drawing the rectangle with diagonal from last pair of coordiates to current
-		if (n == 3)  ellipse(hdc, lastx, lasty, x, y); //Drawing the ellipse with center in the middle of two sets of coordinates
-		if (n == 4)  spiral(hdc, lastx, lasty, x, y);//Drawing the spiral with center in the middle of two sets of coordinates
+		if (g.n == 1)  line(hdc, g.lastx, g.lasty, g.x, g.y);		//Drawing the line from the last pair of coordiates to current
+		if (g.n == 2)  rectangle(hdc, g.lastx, g.lasty, g.x, g.y); //Drawing the rectangle with diagonal from last pair of coordiates to current
+		if (g.n == 3)  ellipse(hdc, g.lastx, g.lasty, g.x, g.y); //Drawing the ellipse with center in the middle of two sets of coordinates
+		if (g.n == 4)  spiral(hdc, g.lastx, g.lasty, g.x, g.y);//Drawing the spiral with center in the middle of two sets of coordinates
 		return 0;
 		//If we want to draw with pencil, then we have to track mose movement
 	case WM_MOUSEMOVE:						//If mouse is moving on the client area 
-		if (wParam & MK_LBUTTON & (n == 5))			//If Left mouse button is down and 'Pencil' button was presed then draw
+		if (wParam & MK_LBUTTON & (g.n == 5))			//If Left mouse button is down and 'Pencil' button was presed then draw
 		{
-		x = LOWORD(lParam);					//Store the current x
-		y = HIWORD(lParam);					//Store the current y
-		line(hdc, lastx, lasty, x, y);		//Draw the line frome the last pair of coordiates to current
-		lastx = x;						//The current x becomes the lastx for next line to be drawn
-		lasty = y;						//The current y becomes the lasty for next line to be drawn
+		g.x = LOWORD(lParam);					//Store the current x
+		g.y = HIWORD(lParam);					//Store the current y
+		line(hdc, g.lastx, g.lasty, g.x, g.y);		//Draw the line frome the last pair of coordiates to current
+		g.lastx = g.x;						//The current x becomes the lastx for next line to be drawn
+		g.lasty = g.y;						//The current y becomes the lasty for next line to be drawn
 		}
 		ReleaseDC(hwnd, hdc);
 		return 0;

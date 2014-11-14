@@ -2,10 +2,13 @@
 #include <windows.h> 
 #include <math.h> //For ellipse and spiral
 
+class Image{
 
+
+public:
 int lastx, lasty, x, y;		//Variables used in drawing.
 int n = 1;					//Switch used for determining what would be drawn (by default - line)
-
+};
 //Functions for drawing primitives contain 5 variables - HDC, coordinates when left mouse button is pressed,
 //and coordinates when mouse button is released. It is explained in detail in WndProc comments
 
@@ -55,4 +58,3 @@ void spiral(HDC _hdc, int x1, int y1, int x2, int y2)//Function draws spiral usi
 		//Formula is similiar to ellipse, but radius is changed with each step
 		LineTo(_hdc, xCenter + (sin(d)*d)*Rx, yCenter + (sin(d + (M_PI / 2))*(d + (M_PI / 2))*Ry));
 }
-

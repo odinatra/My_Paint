@@ -6,25 +6,8 @@
 #include "draw.h" 
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-//Elements of window
-HWND hButLine, hButRect, hButEllipse, hEditRed, hButLine4, hEditGreen, hEditBlue, hEditThick, hButSpiral, hButPencil; 
-HPEN p; //Pen used for drawing
 Image g;
 //  Default WinMain for Windows applications
-
-int check_return(wchar_t buffer[4], HWND ExtShow)
-{
-	int variable = _wtoi(buffer);
-	//Checking if inputted value is in allowed limits
-	if (variable > 255)
-	{
-		variable = 255;
-		SendMessage(ExtShow, WM_SETTEXT, NULL, (LPARAM)TEXT("255")); //Changing value to allowed
-	}
-	return variable;
-}
-
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,PSTR szCmdLine, int iCmdShow)
 {
 	static TCHAR szAppName[] = TEXT("Paint");//Winddow Class name
@@ -50,7 +33,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,PSTR szCmdLine, 
 			MB_ICONERROR);
 		return 0;
 	}
-	p = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+	g.p = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
 	hwnd = CreateWindow(szAppName, // window class name
 		TEXT("MyPaint C++"), // window caption
 		WS_OVERLAPPEDWINDOW,// window style
@@ -82,169 +65,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	RECT rect;
 	hdc = GetDC(hwnd);							//hdc is handle to device context
 	//Initializing pen for drawing. It is reinitialized every cycle
-	SelectObject(hdc, p);
+	SelectObject(hdc, g.p);
 	switch (message)
 	{
 	case WM_CREATE:
 	{
 					  //Initilizing elements of main window
-					  //All buttons and edits are using same set of parameters, so only one would be commented
-					  hButLine = CreateWindowEx(NULL,
-						  TEXT("BUTTON"), //Instructon to initalize button
-						  TEXT("Line"), //Text on a button
-						  WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,//Styles to prevent tabbing and using the default push button 
-						  0,
-						  0,//X and Y coordinates in window. In this case button located in upeer right corner
-						  100,
-						  24,//Size of button in pixels
-						  hwnd,//handle of parent window button 
-						  (HMENU)101,//identifier
-						  GetModuleHandle(NULL),
-						  NULL);
-					  hButRect = CreateWindowEx(NULL,
-						  TEXT("BUTTON"),
-						  TEXT("Rectangle"),
-						  WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-						  0,
-						  24,
-						  100,
-						  24,
-						  hwnd,
-						  (HMENU)102,
-						  GetModuleHandle(NULL),
-						  NULL);
-					  hButEllipse = CreateWindowEx(NULL,
-						  TEXT("BUTTON"),
-						  TEXT("Ellipse"),
-						  WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-						  0,
-						  48,
-						  100,
-						  24,
-						  hwnd,
-						  (HMENU)103,
-						  GetModuleHandle(NULL),
-						  NULL);
-					  hButSpiral = CreateWindowEx(NULL,
-						  TEXT("BUTTON"),
-						  TEXT("Spiral"),
-						  WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-						  0,
-						  72,
-						  100,
-						  24,
-						  hwnd,
-						  (HMENU)104,
-						  GetModuleHandle(NULL),
-						  NULL);
-					  hButPencil = CreateWindowEx(NULL,
-						  TEXT("BUTTON"),
-						  TEXT("Pencil"),
-						  WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-						  0,
-						  96,
-						  100,
-						  24,
-						  hwnd,
-						  (HMENU)105,
-						  GetModuleHandle(NULL),
-						  NULL);
-					  hEditRed = CreateWindowEx(WS_EX_CLIENTEDGE,
-						  TEXT("EDIT"),
-						  TEXT(""),
-						  WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_NUMBER,
-						  0,
-						  120,
-						  100,
-						  24,
-						  hwnd,
-						  (HMENU)201,
-						  GetModuleHandle(NULL),
-						  NULL);
-					  hEditGreen = CreateWindowEx(WS_EX_CLIENTEDGE,
-						  TEXT("EDIT"),//Creatin standart edit control element
-						  TEXT(""),
-						  WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_NUMBER, //Accepts only numbers
-						  0,
-						  144,
-						  100,
-						  24,
-						  hwnd,
-						  (HMENU)202,
-						  GetModuleHandle(NULL),
-						  NULL);
-					  hEditBlue = CreateWindowEx(WS_EX_CLIENTEDGE,
-						  TEXT("EDIT"),
-						  TEXT(""),
-						  WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_NUMBER,
-						  0,
-						  168,
-						  100,
-						  24,
-						  hwnd,
-						  (HMENU)203,
-						  GetModuleHandle(NULL),
-						  NULL);
-					  hEditThick = CreateWindowEx(WS_EX_CLIENTEDGE,
-						  TEXT("EDIT"),
-						  TEXT(""),
-						  WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_NUMBER,
-						  0,
-						  192,
-						  100,
-						  24,
-						  hwnd,
-						  (HMENU)204,
-						  GetModuleHandle(NULL),
-						  NULL);
-					  hButLine4 = CreateWindowEx(NULL,
-						  TEXT("BUTTON"),
-						  TEXT("Set pen"),
-						  WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-						  0,
-						  216,
-						  100,
-						  24,
-						  hwnd,
-						  (HMENU)106,
-						  GetModuleHandle(NULL),
-						  NULL);
+					  //All buttons and edits are using same set of parameters
+					  g.init_elem(hwnd);
 
-					  //Limiting maximum number of characters in edit controls to 3
-					  SendMessage(hEditRed,
-						  EM_LIMITTEXT,
-						  3,
-						  NULL);
-					  SendMessage(hEditGreen,
-						  EM_LIMITTEXT,
-						  3,
-						  NULL);
-					  SendMessage(hEditBlue,
-						  EM_LIMITTEXT,
-						  3,
-						  NULL);
-					  SendMessage(hEditThick,
-						  EM_LIMITTEXT,
-						  3,
-						  NULL);
-					  
-					  //Setting display of default values at the start
-					  SendMessage(hEditRed,
-						  WM_SETTEXT,
-						  NULL,
-					      (LPARAM)TEXT("0"));
-					  SendMessage(hEditGreen,
-						  WM_SETTEXT,
-						  NULL,
-						  (LPARAM)TEXT("0"));
-					  SendMessage(hEditBlue,
-						  WM_SETTEXT,
-						  NULL,
-						  (LPARAM)TEXT("0"));
-					  SendMessage(hEditThick,
-						  WM_SETTEXT,
-						  NULL,
-						  (LPARAM)TEXT("1"));
 	}return 0;
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
@@ -266,31 +95,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case 105:
 		{g.n = 5;
 		} return 0;
-		//Changing pen values to inputed in edit controls. If e
+		//Changing pen values to inputed in edit controls. 
 		case 106:
 		{
-			int r, g, b;	//Color values (by default - black)
-			int t;			//Thickness of pen (by default 1 px)
-			wchar_t buffer_red[4], buffer_green[4], buffer_blue[4], buffer_thick[4]; //Buffers for input
-			SendMessage(hEditRed,
-				WM_GETTEXT,
-				4,//Getting 3 digits+endline symbol
-				reinterpret_cast<LPARAM>(buffer_red));
-			SendMessage(hEditGreen,
-				WM_GETTEXT,
-				4,
-				reinterpret_cast<LPARAM>(buffer_green));
-			SendMessage(hEditBlue,
-				WM_GETTEXT,
-				4,
-				reinterpret_cast<LPARAM>(buffer_blue));
-			SendMessage(hEditThick,
-				WM_GETTEXT,
-				4,
-				reinterpret_cast<LPARAM>(buffer_thick));
-			//Checking, that inputted value is less than 255, and converting to int. With this data we give new information to pen
-			p = CreatePen(PS_SOLID, check_return(buffer_thick, hEditThick), RGB(check_return(buffer_red, hEditRed),
-				check_return(buffer_green, hEditGreen), check_return(buffer_blue, hEditBlue)));
+			//We are getting inputted value, then if it more than max. allowed value we reduce it to 255.
+			// Then we convert it to int. Using this data we give new parameters to pen ;
+					g.init_pen();
 		}
 		return 0;
 		}
@@ -307,8 +117,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (g.n == 2)  rectangle(hdc, g.lastx, g.lasty, g.x, g.y); //Drawing the rectangle with diagonal from last pair of coordiates to current
 		if (g.n == 3)  ellipse(hdc, g.lastx, g.lasty, g.x, g.y); //Drawing the ellipse with center in the middle of two sets of coordinates
 		if (g.n == 4)  spiral(hdc, g.lastx, g.lasty, g.x, g.y);//Drawing the spiral with center in the middle of two sets of coordinates
+		InvalidateRect(hwnd, NULL, NULL);
 		return 0;
-		//If we want to draw with pencil, then we have to track mose movement
+		//If we want to draw with pencil, then we have to track mouse movement
+	case WM_SIZE:
+	{
+					GetClientRect(hwnd, &rect);
+	}
+		break;
+	case WM_ERASEBKGND:
+		return TRUE;
 	case WM_MOUSEMOVE:						//If mouse is moving on the client area 
 		if (wParam & MK_LBUTTON & (g.n == 5))			//If Left mouse button is down and 'Pencil' button was presed then draw
 		{
@@ -323,6 +141,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	
 	//Startup of paint element
 	case WM_PAINT:
+		InvalidateRect(hwnd, NULL, NULL);
+//		UpdateWindow(hwnd);
 		hdc = BeginPaint(hwnd, &ps);
 		GetClientRect(hwnd, &rect);
 		//Information about edit controls

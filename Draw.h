@@ -3,12 +3,99 @@
 #include <math.h> //For ellipse and spiral
 
 class Image{
-
-
 public:
 int lastx, lasty, x, y;		//Variables used in drawing.
 int n = 1;					//Switch used for determining what would be drawn (by default - line)
+//Elements of window
+HWND hButLine, hButRect, hButEllipse, hEditRed, hButSetPen, hEditGreen, hEditBlue, hEditThick, hButSpiral, hButPencil;
+HPEN p; //Pen used for drawing
+void init_elem(HWND hwnd)
+{
+	hButLine = ButInit(0, TEXT("Line"), hwnd, 101);
+	hButRect = ButInit(24, TEXT("Rectangle"), hwnd, 102);
+	hButEllipse = ButInit(48, TEXT("Ellipse"), hwnd, 103);
+	hButSpiral = ButInit(72, TEXT("Spiral"), hwnd, 104);
+	hButPencil = ButInit(96, TEXT("Pencil"), hwnd, 105);
+
+	hEditRed = EditInit(120, hwnd, 201, (LPARAM)TEXT("0"));
+	hEditGreen = EditInit(144, hwnd, 202, (LPARAM)TEXT("0"));
+	hEditBlue = EditInit(168, hwnd, 203, (LPARAM)TEXT("0"));
+	hEditThick = EditInit(192, hwnd, 204, (LPARAM)TEXT("1"));
+
+	hButSetPen = ButInit(216, TEXT("Set pen"), hwnd, 106);
+}
+void init_pen()
+{
+	p = CreatePen(PS_SOLID,
+		check_return(hEditThick),
+		RGB(check_return(hEditRed),
+		check_return(hEditGreen),
+		check_return(hEditBlue)));
+}
+private:
+	int check_return(HWND ExtShow)
+	{
+		wchar_t buffer[4];
+
+		SendMessage(ExtShow,
+			WM_GETTEXT,
+			4,//Getting 3 digits+endline symbol
+			reinterpret_cast<LPARAM>(buffer));
+
+		int variable = _wtoi(buffer);
+		//Checking if inputted value is in allowed limits
+		if (variable > 255)
+		{
+			variable = 255;
+			SendMessage(ExtShow, WM_SETTEXT, NULL, (LPARAM)TEXT("255")); //Changing value to allowed
+		}
+		return variable;
+	}
+	HWND ButInit(int button_y, LPCWSTR txt, HWND hwndr, int iden)
+	{
+		return CreateWindowEx(NULL,
+			TEXT("BUTTON"), //Instructon to initalize button
+			txt, //Text on a button
+			WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,//Styles to prevent tabbing and using the default push button 
+			0,
+			button_y,//X and Y coordinates in window. In this case button located in upper right corner, in line, so x never changes
+			100,
+			24,//Size of button in pixels
+			hwndr,//handle of parent window button 
+			(HMENU)iden,//identifier
+			GetModuleHandle(NULL),
+			NULL);
+	}
+
+	HWND EditInit(int button_y, HWND hwndr, int iden, LPARAM txt)
+	{
+		HWND temp;
+		temp = CreateWindowEx(WS_EX_CLIENTEDGE,
+			TEXT("EDIT"),//Creating standart edit control element
+			TEXT(""),
+			WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_NUMBER, //Accepts numbers only
+			0,
+			button_y,
+			100,
+			24,
+			hwndr,
+			(HMENU)iden,
+			GetModuleHandle(NULL),
+			NULL);
+		//Limiting maximum number of characters in edit controls to 3
+		SendMessage(temp,
+			EM_LIMITTEXT,
+			3,
+			NULL);
+		//Setting display of default values at the start
+		SendMessage(temp,
+			WM_SETTEXT,
+			NULL,
+			txt);
+		return temp;
+	}
 };
+
 //Functions for drawing primitives contain 5 variables - HDC, coordinates when left mouse button is pressed,
 //and coordinates when mouse button is released. It is explained in detail in WndProc comments
 

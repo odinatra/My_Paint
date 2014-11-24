@@ -2,10 +2,10 @@
 #include <windows.h> 
 #include <math.h> //For ellipse and spiral
 
-class Image{
+class Elements{
 public:
 int lastx, lasty, x, y;		//Variables used in drawing.
-int n = 1;					//Switch used for determining what would be drawn (by default - line)
+int n = 0;					//Switch used for determining what would be drawn (by default - line)
 //Elements of window
 HWND hButLine, hButRect, hButEllipse, hEditRed, hButSetPen, hEditGreen, hEditBlue, hEditThick, hButSpiral, hButPencil;
 HPEN p; //Pen used for drawing
@@ -42,12 +42,12 @@ private:
 			4,//Getting 3 digits+endline symbol
 			reinterpret_cast<LPARAM>(buffer));
 
-		int variable = _wtoi(buffer);
+		int variable = _wtoi(buffer);// converting from symbol to int
 		//Checking if inputted value is in allowed limits
 		if (variable > 255)
 		{
 			variable = 255;
-			SendMessage(ExtShow, WM_SETTEXT, NULL, (LPARAM)TEXT("255")); //Changing value to allowed
+			SendMessage(ExtShow, WM_SETTEXT, NULL, (LPARAM)TEXT("255")); //Changing value to max. allowed
 		}
 		return variable;
 	}
@@ -58,7 +58,7 @@ private:
 			txt, //Text on a button
 			WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,//Styles to prevent tabbing and using the default push button 
 			0,
-			button_y,//X and Y coordinates in window. In this case button located in upper right corner, in line, so x never changes
+			button_y,//X and Y coordinates in window. In this case buttonі located in right side, in line, so x never changes
 			100,
 			24,//Size of button in pixels
 			hwndr,//handle of parent window button 
@@ -98,7 +98,8 @@ private:
 
 //Functions for drawing primitives contain 5 variables - HDC, coordinates when left mouse button is pressed,
 //and coordinates when mouse button is released. It is explained in detail in WndProc comments
-
+class Figures{
+	public:
 void line(HDC _hdc, int x1, int y1, int x2, int y2)//This function draws line by the given four coordinates.
 {
 
@@ -145,3 +146,4 @@ void spiral(HDC _hdc, int x1, int y1, int x2, int y2)//Function draws spiral usi
 		//Formula is similiar to ellipse, but radius is changed with each step
 		LineTo(_hdc, xCenter + (sin(d)*d)*Rx, yCenter + (sin(d + (M_PI / 2))*(d + (M_PI / 2))*Ry));
 }
+};

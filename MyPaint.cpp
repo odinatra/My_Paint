@@ -92,8 +92,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//Changing pen values to inputed in edit controls.
 		case 106:
 		{
-					//We are getting inputted value, then if it more than max. allowed value we reduce it to 255.
-					// Then we convert it to int. Using this data we give new parameters to pen ;
+					//Setting pen
 					g.init_pen();
 		}
 			return 0;
@@ -122,6 +121,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			g.x = LOWORD(lParam); //Store the current x
 			g.y = HIWORD(lParam); //Store the current y
 			f.line(hdc, g.lastx, g.lasty, g.x, g.y); //Draw the line frome the last pair of coordiates to current
+			InvalidateRect(hwnd, NULL, NULL);
 			g.lastx = g.x; //The current x becomes the lastx for next line to be drawn
 			g.lasty = g.y; //The current y becomes the lasty for next line to be drawn
 		}
@@ -129,7 +129,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return 0;
 		//Startup of paint element
 	case WM_PAINT:
-		InvalidateRect(hwnd, NULL, NULL);
 		// UpdateWindow(hwnd);
 		hdc = BeginPaint(hwnd, &ps);
 		GetClientRect(hwnd, &rect);
@@ -139,11 +138,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		TextOut(hdc, 100, 168, TEXT("Blue"), 4);
 		TextOut(hdc, 100, 192, TEXT("Thickness"), 9);
 		//Depending on n following action will take place
+		SelectObject(hdc, g.p);
 		if (g.n == 1) f.line(hdc, g.lastx, g.lasty, g.x, g.y); //Drawing the line from the last pair of coordiates to current
 		if (g.n == 2) f.rectangle(hdc, g.lastx, g.lasty, g.x, g.y); //Drawing the rectangle with diagonal from last pair of coordiates to current
 		if (g.n == 3) f.ellipse(hdc, g.lastx, g.lasty, g.x, g.y); //Drawing the ellipse with center in the middle of two sets of coordinates
 		if (g.n == 4) f.spiral(hdc, g.lastx, g.lasty, g.x, g.y);//Drawing the spiral with center in the middle of two sets of coordinates
 		EndPaint(hwnd, &ps);
+		//Experiments with memory are at the end of program
 		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -151,3 +152,39 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	return DefWindowProc(hwnd, message, wParam, lParam);
 }
+//Double buffering attemt
+/*I have attemted to save image in memory DC, and even trough everywhere I looked told me,
+that I've done it right, I have failed to achieve anything 
+except black screen or an image that revrote itself after each new figure. The last one reproduced here.
+case WM_PAINT:
+//InvalidateRect(hwnd, NULL, NULL);
+// UpdateWindow(hwnd);
+GetWindowRect(hwnd, &rect);
+hdc = BeginPaint(hwnd, &ps);
+hdcMem = CreateCompatibleDC(hdc);
+BitBlt(hdcMem, 0, 0, rect.right, rect.bottom, NULL, 0, 0, WHITENESS);
+hbmMem = CreateCompatibleBitmap(hdc, rect.right, rect.bottom);
+
+hOld = SelectObject(hdcMem, hbmMem);
+//Information about edit controls
+//BitBlt(hdcMem, 0, 0, rect.right, rect.bottom, NULL, 0, 0, WHITENESS);
+TextOut(hdcMem, 100, 120, TEXT("Red"), 3);
+TextOut(hdcMem, 100, 144, TEXT("Green"), 5);
+TextOut(hdcMem, 100, 168, TEXT("Blue"), 4);
+TextOut(hdcMem, 100, 192, TEXT("Thickness"), 9);
+//Depending on n following action will take place
+////If I've managed to do it correctly here I would export my pen to hdcMem
+if (g.n == 1) f.line(hdcMem, g.lastx, g.lasty, g.x, g.y); //Drawing the line from the last pair of coordiates to current
+if (g.n == 2) f.rectangle(hdcMem, g.lastx, g.lasty, g.x, g.y); //Drawing the rectangle with diagonal from last pair of coordiates to current
+if (g.n == 3) f.ellipse(hdcMem, g.lastx, g.lasty, g.x, g.y); //Drawing the ellipse with center in the middle of two sets of coordinates
+if (g.n == 4) f.spiral(hdcMem, g.lastx, g.lasty, g.x, g.y);//Drawing the spiral with center in the middle of two sets of coordinates
+BitBlt(hdc, 0, 0, rect.right, rect.bottom, hdcMem, 0, 0, SRCCOPY);
+SelectObject(hdcMem, hOld);
+DeleteObject(hbmMem);
+DeleteDC(hdcMem);
+EndPaint(hwnd, &ps);
+return 0;
+case WM_DESTROY:
+PostQuitMessage(0);
+return 0;
+*/

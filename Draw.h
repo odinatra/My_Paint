@@ -26,6 +26,9 @@ void init_elem(HWND hwnd)
 }
 void init_pen()
 {
+
+	//We are getting inputted value, then if it more than max. allowed value we reduce it to 255.
+	//Then we convert it to int. Using this data we give new parameters to pen ;
 	p = CreatePen(PS_SOLID,
 		check_return(hEditThick),
 		RGB(check_return(hEditRed),
